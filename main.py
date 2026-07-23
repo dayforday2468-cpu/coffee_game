@@ -2,6 +2,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_ollama import ChatOllama
 
+import os
 
 def create_customer(llm: ChatOllama) -> str:
     """카페에 방문한 가상의 손님을 생성한다."""
@@ -11,7 +12,6 @@ def create_customer(llm: ChatOllama) -> str:
             (
                 "system",
                 """
-                우리 팀은 커피 내기 게임을 하려고 합니다.
                 당신은 카페에 방문한 손님입니다.
 
                 현재 기분, 취향, 상황을 포함해 손님을 100자 이내로 묘사하세요.
@@ -23,7 +23,7 @@ def create_customer(llm: ChatOllama) -> str:
 
     chain = prompt | llm | StrOutputParser()
 
-    return chain.invoke({}).strip()
+    return chain.invoke({})
 
 
 def get_menu_recommendations(num_players: int) -> list[str]:
@@ -35,7 +35,7 @@ def get_menu_recommendations(num_players: int) -> list[str]:
         while True:
             menu = input(
                 f"{player_number}번 참가자가 추천할 메뉴를 입력하세요: "
-            ).strip()
+            )
 
             if menu:
                 recommendations.append(menu)
@@ -61,7 +61,7 @@ def select_winner(
                 당신은 앞에서 설정된 카페 손님입니다.
 
                 손님의 상황과 참가자들이 추천한 메뉴를 보고,
-                지금 가장 먹기 싫은 메뉴 하나를 선택하세요.
+                지금 가장 먹고 싶은 메뉴 하나를 선택하세요.
 
                 반드시 한 명만 선택해야 합니다.
                 메뉴를 추천한 참가자의 번호를 정확히 표시하세요.
@@ -98,7 +98,7 @@ def select_winner(
             "situation": situation,
             "recommendations": recommendations_text,
         }
-    ).strip()
+    )
 
 
 def main() -> None:
@@ -113,17 +113,12 @@ def main() -> None:
     print(situation)
 
     while True:
-        try:
-            num_players = int(input("\n게임에 참여할 사람 수는? "))
+        num_players = int(input("\n게임에 참여할 사람 수는? "))
 
-            if num_players >= 2:
-                break
+        if num_players >= 2:
+            break
 
-            print("참가자는 2명 이상이어야 합니다.")
-
-        except ValueError:
-            print("숫자를 입력해주세요.")
-
+        print("참가자는 2명 이상이어야 합니다.")
     menu_recommendations = get_menu_recommendations(num_players)
 
     result = select_winner(
